@@ -11,6 +11,7 @@ from pycanlii.models import (
     CaseMetadata,
     CaseSummary,
     Language,
+    LegislationSummary,
 )
 
 BASE_URL = "https://api.canlii.org/v1"
@@ -100,3 +101,17 @@ class CanLII:
     ) -> CaseMetadata:
         data = self._get(f"/caseBrowse/{language.value}/{database_id}/{case_id}/")
         return CaseMetadata.from_dict(data)
+
+    def cited_cases(self, database_id: str, case_id: str) -> list[CaseSummary]:
+        data = self._get(f"/caseCitator/en/{database_id}/{case_id}/citedCases")
+        return [CaseSummary.from_dict(d) for d in data["citedCases"]]
+
+    def citing_cases(self, database_id: str, case_id: str) -> list[CaseSummary]:
+        data = self._get(f"/caseCitator/en/{database_id}/{case_id}/citingCases")
+        return [CaseSummary.from_dict(d) for d in data["citingCases"]]
+
+    def cited_legislations(
+        self, database_id: str, case_id: str
+    ) -> list[LegislationSummary]:
+        data = self._get(f"/caseCitator/en/{database_id}/{case_id}/citedLegislations")
+        return [LegislationSummary.from_dict(d) for d in data["citedLegislations"]]
