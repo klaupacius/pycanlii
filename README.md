@@ -10,15 +10,7 @@ Python 3.12+
 
 ## Installation
 
-```bash
-pip install pycanlii
-```
-
-Or with uv:
-
-```bash
-uv add pycanlii
-```
+TBA
 
 ## Quick Start
 
