@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+import datetime
 from typing import Any
 
 import httpx
 
 from pycanlii.exceptions import ApiError, PayloadTooLargeError
+from pycanlii.models import (
+    CaseDatabase,
+    CaseMetadata,
+    CaseSummary,
+    Language,
+)
 
 BASE_URL = "https://api.canlii.org/v1"
 
@@ -44,3 +51,52 @@ class CanLII:
 
     def __exit__(self, *args: object) -> None:
         self.close()
+
+    def case_databases(self, language: Language) -> list[CaseDatabase]:
+        data = self._get(f"/caseBrowse/{language.value}/")
+        return [CaseDatabase.from_dict(d) for d in data["caseDatabases"]]
+
+    def cases(
+        self,
+        language: Language,
+        database_id: str,
+        *,
+        offset: int,
+        result_count: int,
+        published_before: datetime.date | None = None,
+        published_after: datetime.date | None = None,
+        modified_before: datetime.date | None = None,
+        modified_after: datetime.date | None = None,
+        changed_before: datetime.date | None = None,
+        changed_after: datetime.date | None = None,
+        decision_date_before: datetime.date | None = None,
+        decision_date_after: datetime.date | None = None,
+    ) -> list[CaseSummary]:
+        params: dict[str, str] = {
+            "offset": str(offset),
+            "resultCount": str(result_count),
+        }
+        date_filters = {
+            "publishedBefore": published_before,
+            "publishedAfter": published_after,
+            "modifiedBefore": modified_before,
+            "modifiedAfter": modified_after,
+            "changedBefore": changed_before,
+            "changedAfter": changed_after,
+            "decisionDateBefore": decision_date_before,
+            "decisionDateAfter": decision_date_after,
+        }
+        for key, value in date_filters.items():
+            if value is not None:
+                params[key] = value.isoformat()
+        data = self._get(f"/caseBrowse/{language.value}/{database_id}/", params=params)
+        return [CaseSummary.from_dict(d) for d in data["cases"]]
+
+    def case(
+        self,
+        language: Language,
+        database_id: str,
+        case_id: str,
+    ) -> CaseMetadata:
+        data = self._get(f"/caseBrowse/{language.value}/{database_id}/{case_id}/")
+        return CaseMetadata.from_dict(data)
