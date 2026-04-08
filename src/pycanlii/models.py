@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
@@ -81,6 +81,7 @@ class CaseMetadata:
             concatenated_id=data.get("concatenatedId"),
         )
 
+
 class LegislationType(Enum):
     STATUTE = "STATUTE"
     REGULATION = "REGULATION"
@@ -148,7 +149,7 @@ class LegislationMetadata:
     start_date: datetime.date | None = None
     end_date: datetime.date | None = None
     repealed: str | None = None
-    content: list[ContentPart] = ()  # type: ignore[assignment]
+    content: list[ContentPart] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> LegislationMetadata:
