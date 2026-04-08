@@ -11,6 +11,8 @@ from pycanlii.models import (
     CaseMetadata,
     CaseSummary,
     Language,
+    LegislationDatabase,
+    LegislationMetadata,
     LegislationSummary,
 )
 
@@ -115,3 +117,26 @@ class CanLII:
     ) -> list[LegislationSummary]:
         data = self._get(f"/caseCitator/en/{database_id}/{case_id}/citedLegislations")
         return [LegislationSummary.from_dict(d) for d in data["citedLegislations"]]
+
+    def legislation_databases(self, language: Language) -> list[LegislationDatabase]:
+        data = self._get(f"/legislationBrowse/{language.value}/")
+        return [LegislationDatabase.from_dict(d) for d in data["legislationDatabases"]]
+
+    def legislations(
+        self,
+        language: Language,
+        database_id: str,
+    ) -> list[LegislationSummary]:
+        data = self._get(f"/legislationBrowse/{language.value}/{database_id}/")
+        return [LegislationSummary.from_dict(d) for d in data["legislations"]]
+
+    def legislation(
+        self,
+        language: Language,
+        database_id: str,
+        legislation_id: str,
+    ) -> LegislationMetadata:
+        data = self._get(
+            f"/legislationBrowse/{language.value}/{database_id}/{legislation_id}/"
+        )
+        return LegislationMetadata.from_dict(data)
