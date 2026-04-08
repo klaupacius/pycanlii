@@ -2,6 +2,8 @@
 
 Python wrapper for the [CanLII REST API](https://github.com/canlii/API_documentation/blob/master/EN.md). Provides typed access to Canadian legal information — case law, legislation, and citation data.
 
+**NOTE:** Written with the assistance of AI.
+
 ## Requirements
 
 Python 3.12+
