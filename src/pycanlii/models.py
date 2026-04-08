@@ -80,3 +80,90 @@ class CaseMetadata:
             keywords=data.get("keywords"),
             concatenated_id=data.get("concatenatedId"),
         )
+
+class LegislationType(Enum):
+    STATUTE = "STATUTE"
+    REGULATION = "REGULATION"
+    ANNUAL_STATUTE = "ANNUAL_STATUTE"
+
+
+@dataclass(frozen=True)
+class LegislationDatabase:
+    database_id: str
+    type: LegislationType
+    jurisdiction: str
+    name: str
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> LegislationDatabase:
+        return cls(
+            database_id=data["databaseId"],
+            type=LegislationType(data["type"]),
+            jurisdiction=data["jurisdiction"],
+            name=data["name"],
+        )
+
+
+@dataclass(frozen=True)
+class LegislationSummary:
+    database_id: str
+    legislation_id: str
+    title: str
+    citation: str
+    type: LegislationType
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> LegislationSummary:
+        return cls(
+            database_id=data["databaseId"],
+            legislation_id=data["legislationId"],
+            title=data["title"],
+            citation=data["citation"],
+            type=LegislationType(data["type"]),
+        )
+
+
+@dataclass(frozen=True)
+class ContentPart:
+    part_id: str
+    part_name: str
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> ContentPart:
+        return cls(
+            part_id=data["partId"],
+            part_name=data["partName"],
+        )
+
+
+@dataclass(frozen=True)
+class LegislationMetadata:
+    legislation_id: str
+    url: str
+    title: str
+    citation: str
+    type: LegislationType
+    language: str
+    date_scheme: str | None = None
+    start_date: datetime.date | None = None
+    end_date: datetime.date | None = None
+    repealed: str | None = None
+    content: list[ContentPart] = ()  # type: ignore[assignment]
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> LegislationMetadata:
+        raw_start = data.get("startDate")
+        raw_end = data.get("endDate")
+        return cls(
+            legislation_id=data["legislationId"],
+            url=data["url"],
+            title=data["title"],
+            citation=data["citation"],
+            type=LegislationType(data["type"]),
+            language=data["language"],
+            date_scheme=data.get("dateScheme"),
+            start_date=datetime.date.fromisoformat(raw_start) if raw_start else None,
+            end_date=datetime.date.fromisoformat(raw_end) if raw_end else None,
+            repealed=data.get("repealed"),
+            content=[ContentPart.from_dict(c) for c in data.get("content", [])],
+        )
